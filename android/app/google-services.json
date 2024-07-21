@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "279024256328",
+    "project_id": "campus-guide-7f059",
+    "storage_bucket": "campus-guide-7f059.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279024256328:android:f29533383bf7fe73889f7d",
+        "android_client_info": {
+          "package_name": "com.example.campus_guide"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNfeYRLPDpgw9RXUYG0163o80W3OK9WiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
