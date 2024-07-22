@@ -1,4 +1,5 @@
 import 'package:campus_guide/screens/bottom_navigator.dart';
+import 'package:campus_guide/screens/home_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -95,7 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _completed(){
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const BottomNavigator()),
+      MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: HomePageScreen(),)),
     );
   }
 

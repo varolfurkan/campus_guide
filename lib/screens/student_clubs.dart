@@ -1,3 +1,4 @@
+import 'package:campus_guide/bloc/admin_bloc.dart';
 import 'package:campus_guide/bloc/user_bloc.dart';
 import 'package:campus_guide/screens/club_detail_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +14,23 @@ class StudentClubs extends StatefulWidget {
 
 class _StudentClubsState extends State<StudentClubs> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
+  void _loadData() {
     context.read<UserCubit>().getStudentClubs();
     if (context.read<UserCubit>().state.firebaseUser != null) {
-      context.read<UserCubit>().getFollowedClubs();
+      if (context.read<AdminCubit>().state.isAdmin) {
+        context.read<UserCubit>().getStudentClubs();
+      } else {
+        context.read<UserCubit>().getFollowedClubs();
+      }
     }
-
+  }
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: GestureDetector(

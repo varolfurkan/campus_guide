@@ -1,5 +1,6 @@
 import 'package:campus_guide/bloc/user_bloc.dart';
 import 'package:campus_guide/screens/bottom_navigator.dart';
+import 'package:campus_guide/screens/student_home_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,7 +41,7 @@ class RegisterPageWidget extends StatelessWidget {
             if (state.firebaseUser != null) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const BottomNavigator()),
+                MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: StudentHomePageScreen(),)),
               );
             } else if (state.error != null) {
               ScaffoldMessenger.of(context).showSnackBar(

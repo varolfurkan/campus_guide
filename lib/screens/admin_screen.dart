@@ -1,5 +1,6 @@
 import 'package:campus_guide/bloc/admin_bloc.dart';
 import 'package:campus_guide/screens/bottom_navigator.dart';
+import 'package:campus_guide/screens/home_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -24,7 +25,7 @@ class _AdminScreenState extends State<AdminScreen> {
           },
         ),
         centerTitle: true,
-        title: const Text('Kulüp Yönetim Sayfası', style: TextStyle(color: Colors.white)),
+        title: const Text('Kulüp Admin Profili', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
             icon: const Icon(FontAwesomeIcons.bell, color: Colors.white),
@@ -90,7 +91,7 @@ class _AdminScreenState extends State<AdminScreen> {
                             onPressed: () {
                               context.read<AdminCubit>().signOut();
                               Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(builder: (context) => const BottomNavigator()),
+                                MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: HomePageScreen(),)),
                               );
                             },
                             child: const Text(

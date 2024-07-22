@@ -50,7 +50,6 @@ dependencies:
   firebase_storage: ^12.1.1
   flutter_bloc: ^8.1.6
   bloc: ^8.1.4
-  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +82,7 @@ flutter:
     - img/icons/
     - img/onboarding/
     - img/homepage_slider/
+    - img/admin_page_icon/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

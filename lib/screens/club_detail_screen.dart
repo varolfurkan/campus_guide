@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:campus_guide/bloc/user_bloc.dart';
 import 'package:campus_guide/repository/user_repository.dart';
 import 'package:flutter/material.dart';

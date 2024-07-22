@@ -1,6 +1,8 @@
 import 'package:campus_guide/bloc/admin_bloc.dart';
 import 'package:campus_guide/bloc/user_bloc.dart';
+import 'package:campus_guide/screens/admin_home_page_screen.dart';
 import 'package:campus_guide/screens/bottom_navigator.dart';
+import 'package:campus_guide/screens/student_home_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -29,7 +31,7 @@ class LoginPageWidget extends StatelessWidget {
             if (state.firebaseUser != null && !state.isAdmin) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const BottomNavigator()),
+                MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: StudentHomePageScreen(),)),
               );
             } else if (state.error != null) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -163,7 +165,7 @@ class LoginPageWidget extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const BottomNavigator()),
+                    MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: AdminHomePageScreen(),)),
                   );
                 } else if (state.error != null) {
                   ScaffoldMessenger.of(context).showSnackBar(

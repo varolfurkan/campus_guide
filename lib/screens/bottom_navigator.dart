@@ -1,11 +1,12 @@
 import 'package:campus_guide/screens/events_screen.dart';
-import 'package:campus_guide/screens/home_page_screen.dart';
 import 'package:campus_guide/screens/student_clubs.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BottomNavigator extends StatefulWidget {
-  const BottomNavigator({super.key});
+  final Widget homePage;
+
+  const BottomNavigator({super.key, required this.homePage});
 
   @override
   State<BottomNavigator> createState() => _BottomNavigatorState();
@@ -14,13 +15,19 @@ class BottomNavigator extends StatefulWidget {
 class _BottomNavigatorState extends State<BottomNavigator> {
   int _selectedIndex = 0;
 
-  static  final List<Widget> _widgetOptions = <Widget>[
-    const HomePageScreen(),
-    const StudentClubs(),
-    const Center(child: Text('AI Mentor')),
-    const EventScreen(),
-    const Center(child: Text('Digital Library')),
-  ];
+  late List<Widget> _widgetOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    _widgetOptions = [
+      widget.homePage,
+      const StudentClubs(),
+      const Center(child: Text('AI Mentor')),
+      const EventScreen(),
+      const Center(child: Text('Digital Library')),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

@@ -1,8 +1,11 @@
 import 'package:campus_guide/bloc/admin_bloc.dart';
 import 'package:campus_guide/bloc/user_bloc.dart';
 import 'package:campus_guide/firebase_options.dart';
+import 'package:campus_guide/screens/admin_home_page_screen.dart';
 import 'package:campus_guide/screens/bottom_navigator.dart';
+import 'package:campus_guide/screens/home_page_screen.dart';
 import 'package:campus_guide/screens/onboarding_screen.dart';
+import 'package:campus_guide/screens/student_home_page_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,6 +65,7 @@ class CheckOnboarding extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<UserCubit>().getCurrentUser();
     context.read<AdminCubit>().getCurrentAdmin();
+
     return FutureBuilder<bool>(
       future: _isFirstTime(),
       builder: (context, snapshot) {
@@ -70,11 +74,26 @@ class CheckOnboarding extends StatelessWidget {
         } else if (snapshot.hasData && snapshot.data == true) {
           return const OnboardingScreen();
         } else {
-          return const BottomNavigator();
+          return BlocBuilder<UserCubit, UserState>(
+            builder: (context, userState) {
+              return BlocBuilder<AdminCubit, AdminState>(
+                builder: (context, adminState) {
+                  if (adminState.isLoading && userState.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (adminState.isAdmin && adminState.firebaseUser != null) {
+                    return const BottomNavigator(homePage: AdminHomePageScreen());
+                  } else if (!adminState.isAdmin && userState.firebaseUser != null) {
+                    return const BottomNavigator(homePage: StudentHomePageScreen());
+                  }
+                  else {
+                    return const BottomNavigator(homePage: HomePageScreen(),);
+                  }
+                },
+              );
+            },
+          );
         }
       },
     );
   }
 }
-
-
