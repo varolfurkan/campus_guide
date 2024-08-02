@@ -31,7 +31,7 @@ class LoginPageWidget extends StatelessWidget {
             if (state.firebaseUser != null && !state.isAdmin) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: StudentHomePageScreen(),)),
+                MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: StudentHomePageScreen())),
               );
             } else if (state.error != null) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -52,8 +52,7 @@ class LoginPageWidget extends StatelessWidget {
                 }
               },
               style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(
-                    const Color(0xFF007BFF)),
+                backgroundColor: WidgetStateProperty.all<Color>(const Color(0xFF007BFF)),
                 minimumSize: WidgetStateProperty.all<Size>(const Size(200, 50)),
               ),
               child: const Text(
@@ -162,11 +161,13 @@ class LoginPageWidget extends StatelessWidget {
             BlocConsumer<AdminCubit, AdminState>(
               listener: (context, state) {
                 if (state.isAdmin) {
-                  Navigator.pop(context);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: AdminHomePageScreen(),)),
-                  );
+                  Navigator.pop(context); // Dismiss the dialog
+                  Future.microtask(() {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const BottomNavigator(homePage: AdminHomePageScreen())),
+                    );
+                  });
                 } else if (state.error != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.error!)),

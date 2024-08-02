@@ -1,4 +1,8 @@
 import 'package:campus_guide/bloc/admin_bloc.dart';
+import 'package:campus_guide/screens/club_management_screen.dart';
+import 'package:campus_guide/screens/event_management_screen.dart';
+import 'package:campus_guide/screens/notification_management_screen.dart';
+import 'package:campus_guide/screens/notification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,6 +15,11 @@ class AdminHomePageScreen extends StatefulWidget {
 }
 
 class _AdminHomePageScreenState extends State<AdminHomePageScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AdminCubit>().getNotifications();
+  }
   final List<String> managementTools = [
     'Kulüp Yönetimi',
     'Etkinlik Yönetimi',
@@ -54,10 +63,52 @@ class _AdminHomePageScreenState extends State<AdminHomePageScreen> {
         title: const Text('Kampüs Rehberi Admin', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF007BFF),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(FontAwesomeIcons.bell, color: Colors.white),
+            padding: const EdgeInsets.only(right: 16.0),
+            child: BlocBuilder<AdminCubit, AdminState>(
+              builder: (context, state) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(FontAwesomeIcons.bell, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                        );
+                        context.read<AdminCubit>().getNotifications();
+                      },
+                    ),
+                    if (state.unreadNotificationCount > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            state.unreadNotificationCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -82,7 +133,28 @@ class _AdminHomePageScreenState extends State<AdminHomePageScreen> {
                   childAspectRatio: 1,
                 ),
                 itemBuilder: (context, index) {
-                  return _buildGridItem(managementTools[index], managementIcons[index]);
+                  return GestureDetector(
+                    onTap: () {
+                      if (managementTools[index] == 'Kulüp Yönetimi') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ClubManagementScreen()),
+                        );
+                      } else if (managementTools[index] == 'Etkinlik Yönetimi') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EventManagementScreen()),
+                        );
+                      } else if (managementTools[index] == 'Duyurular') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => NotificationManagementScreen()),
+                        );
+                      }
+                    },
+                    child: _buildGridItem(managementTools[index], managementIcons[index]),
+                  );
+
                 },
               ),
               const Padding(

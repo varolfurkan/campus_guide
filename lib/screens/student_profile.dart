@@ -27,14 +27,6 @@ class _StudentProfileState extends State<StudentProfile> {
         ),
         centerTitle: true,
         title: const Text('Profilim', style: TextStyle(color: Colors.white)),
-        actions: [
-          IconButton(
-            icon: const Icon(FontAwesomeIcons.bell, color: Colors.white),
-            onPressed: () {
-              //TODO Bildirimlere yönlendireceğiz unutma !!!
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<UserCubit, UserState>(
         builder: (context, state) {

@@ -3,7 +3,6 @@ import 'package:campus_guide/screens/bottom_navigator.dart';
 import 'package:campus_guide/screens/home_page_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -13,6 +12,13 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<AdminCubit>().getCurrentAdmin();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,14 +32,6 @@ class _AdminScreenState extends State<AdminScreen> {
         ),
         centerTitle: true,
         title: const Text('Kulüp Admin Profili', style: TextStyle(color: Colors.white)),
-        actions: [
-          IconButton(
-            icon: const Icon(FontAwesomeIcons.bell, color: Colors.white),
-            onPressed: () {
-              // Bildirimlere yönlendireceğiz unutma !!!
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<AdminCubit, AdminState>(
         builder: (context, state) {

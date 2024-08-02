@@ -1,3 +1,4 @@
+import 'package:campus_guide/screens/ai_mentor_screen.dart';
 import 'package:campus_guide/screens/events_screen.dart';
 import 'package:campus_guide/screens/student_clubs.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +24,9 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     _widgetOptions = [
       widget.homePage,
       const StudentClubs(),
-      const Center(child: Text('AI Mentor')),
+      const AiMentorScreen(),
       const EventScreen(),
-      const Center(child: Text('Digital Library')),
+      const Center(child: Text('Forum(In Progress)')),
     ];
   }
 

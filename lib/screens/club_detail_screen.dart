@@ -41,6 +41,7 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> {
       await _userRepository.updateFollowStatus(user, widget.clubId, widget.club, isFollowing);
       setState(() {
         isFollowing = !isFollowing;
+        widget.club['members'] = isFollowing ? (widget.club['members'] ?? 0) + 1 : (widget.club['members'] ?? 0) - 1;
       });
       context.read<UserCubit>().followStatusChanged();
     }
@@ -130,7 +131,7 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> {
                   ),
                   const SizedBox(height: 8.0),
                   _buildInfoChip(
-                    '${club['events']} Etkinlik',
+                    '${club['events'].length} Etkinlik',
                     Colors.blue,
                     false,
                     textColor: Colors.blue,
@@ -148,13 +149,13 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> {
           const SizedBox(height: 16.0),
           _buildSectionTitle('Etkinlikler ve Projeler'),
           _buildSectionTitle('Yaklaşan Etkinlikler'),
-          _buildEventList(club['upcomingEvents'] ?? []),
+          _buildEventList(List<Map<String, dynamic>>.from(club['events'] ?? [])),
           _buildSectionTitle('Geçmiş Etkinlikler'),
-          _buildEventList(club['pastEvents'] ?? []),
+          _buildEventList(List<Map<String, dynamic>>.from(club['pastEvents'] ?? [])),
           _buildSectionTitle('Kulüp Yönetimi'),
-          _buildManagementInfo(club['management'] ?? {}),
+          _buildManagementInfo(List<Map<String, dynamic>>.from(club['management'] ?? [])),
           _buildSectionTitle('İletişim'),
-          Text(club['contact'] ?? 'No contact information available'),
+          Text(club['contactInfo'] ?? 'No contact information available'),
         ],
       ),
     );
@@ -162,7 +163,7 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical:8.0),
       child: Text(
         title,
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF007BFF)),
@@ -183,69 +184,116 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> {
             side: BorderSide(color: event['type'] == 'Özel' ? Colors.red : Colors.green, width: 2),
           ),
           child: ListTile(
-            title: Text(event['title']),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Endüstri Mühendisliği Kulübü'),
-                Text('Tarih: ${event['date']}'),
-                Text('Konum: ${event['location'] ?? 'Belirtilmedi'}'),
-                Text('Açıklama: ${event['description'] ?? 'Açıklama yok'}'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      event['event_title'],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+
+                    Row(
+                      children: [
+                        _buildInfoChip(
+                          event['type'],
+                          event['type'] == 'Özel' ? Colors.red : Colors.green,
+                          false,
+                          textColor: event['type'] == 'Özel' ? Colors.red : Colors.green,
+                          backgroundColor: Colors.white,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.calendar_month),
+                          onPressed: () {
+                            // Add event to calendar functionality
+                          },
+                        ),
+                        _buildInfoChip(
+                          '12', // Example number, replace with your data
+                          Colors.orange,
+                          false,
+                          textColor: Colors.orange,
+                          backgroundColor: Colors.white,
+                          icon: Icons.people,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Text(event['clubName'],
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text('Tarih: ${event['date']}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text('Konum: ${event['location'] ?? 'Belirtilmedi'}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text('Açıklama: ${event['description'] ?? 'Açıklama yok'}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
-            trailing: Wrap(
-              spacing: 8.0,
-              children: [
-                _buildInfoChip(
-                  event['type'],
-                  event['type'] == 'Özel' ? Colors.red : Colors.green,
-                  false,
-                  textColor: event['type'] == 'Özel' ? Colors.red : Colors.green,
-                  backgroundColor: Colors.white,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    // Add event to calendar functionality
-                  },
-                ),
-                _buildInfoChip(
-                  '12', // Example number, replace with your data
-                  Colors.orange,
-                  false,
-                  textColor: Colors.orange,
-                  backgroundColor: Colors.white,
-                ),
-              ],
-            ),
+
           ),
         );
       },
     );
   }
 
-  Widget _buildInfoChip(String label, Color color, bool isType, {Color textColor = Colors.green, Color backgroundColor = Colors.transparent}) {
+  Widget _buildInfoChip(String label, Color color, bool isType, {Color textColor = Colors.green, Color backgroundColor = Colors.transparent, IconData? icon}) {
     return Chip(
-      label: Text(
-        label,
-        style: TextStyle(
-          color: isType ? color : textColor,
-          fontSize: 14,
-        ),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: isType ? color : textColor,
+              fontSize: 14,
+            ),
+          ),
+          if (icon != null)
+          Icon(
+            icon,
+            color: color,
+            size: 16,
+          ),
+        ],
       ),
       backgroundColor: isType ? Colors.white : backgroundColor,
       shape: StadiumBorder(side: BorderSide(color: color)),
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 5),
     );
   }
 
-  Widget _buildManagementInfo(Map<String, dynamic> management) {
+
+  Widget _buildManagementInfo(List<Map<String, dynamic>> management) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: management.entries.map((entry) {
-        return Text('${entry.key}: ${entry.value}');
+      children: management.map((entry) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${entry['role'] ?? 'Unknown'}: ${entry['name'] ?? 'Unknown'}'),
+            const SizedBox(height: 8.0),
+          ],
+        );
       }).toList(),
     );
   }
 }
-

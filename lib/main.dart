@@ -84,9 +84,8 @@ class CheckOnboarding extends StatelessWidget {
                     return const BottomNavigator(homePage: AdminHomePageScreen());
                   } else if (!adminState.isAdmin && userState.firebaseUser != null) {
                     return const BottomNavigator(homePage: StudentHomePageScreen());
-                  }
-                  else {
-                    return const BottomNavigator(homePage: HomePageScreen(),);
+                  } else {
+                    return const BottomNavigator(homePage: HomePageScreen());
                   }
                 },
               );
@@ -97,3 +96,4 @@ class CheckOnboarding extends StatelessWidget {
     );
   }
 }
+

@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:campus_guide/bloc/admin_bloc.dart';
 import 'package:campus_guide/bloc/user_bloc.dart';
+import 'package:campus_guide/screens/notification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -74,10 +76,52 @@ class _EventScreenState extends State<EventScreen> {
         title: const Text('Etkinlik Takvimi', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF007BFF),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(FontAwesomeIcons.bell, color: Colors.white),
+            padding: const EdgeInsets.only(right: 16.0),
+            child: BlocBuilder<AdminCubit, AdminState>(
+              builder: (context, state) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(FontAwesomeIcons.bell, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                        );
+                        context.read<AdminCubit>().getNotifications();
+                      },
+                    ),
+                    if (state.unreadNotificationCount > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            state.unreadNotificationCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),

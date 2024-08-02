@@ -15,14 +15,14 @@ class UserRepository {
   }
 
   Future<bool> isAdmin(User user) async {
-    final doc = await _firestore.collection('admins').doc(user.uid).get();
-    return doc.exists;
+    DocumentSnapshot adminDoc = await _firestore.collection('admins').doc(user.uid).get();
+    return adminDoc.exists;
   }
 
   Future<String?> getAdminName(User user) async {
-    final doc = await _firestore.collection('admins').doc(user.uid).get();
-    if (doc.exists) {
-      return doc.data()?['adminName'];
+    DocumentSnapshot adminDoc = await _firestore.collection('admins').doc(user.uid).get();
+    if (adminDoc.exists) {
+      return adminDoc['adminName'] as String?;
     }
     return null;
   }
@@ -101,8 +101,13 @@ class UserRepository {
       QuerySnapshot querySnapshot = await _firestore.collection('users').doc(user.uid).collection('followed_clubs').get();
       List<Map<String, dynamic>> followedClubs = [];
       for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> clubData = doc.data() as Map<String, dynamic>;
-        followedClubs.add(clubData);
+        // Kulübün güncel durumunu alıyoruz
+        final clubId = doc.id;
+        final clubSnapshot = await _firestore.collection('student_clubs').doc(clubId).get();
+        if (clubSnapshot.exists) {
+          Map<String, dynamic> clubData = clubSnapshot.data() as Map<String, dynamic>;
+          followedClubs.add(clubData);
+        }
       }
       return followedClubs;
     } catch (e) {
@@ -111,26 +116,65 @@ class UserRepository {
   }
 
   Future<void> updateFollowStatus(User user, String clubId, Map<String, dynamic> club, bool isFollowing) async {
+    final clubRef = FirebaseFirestore.instance.collection('student_clubs').doc(clubId);
+    final followedClubRef = FirebaseFirestore.instance.collection('users').doc(user.uid).collection('followed_clubs').doc(clubId);
+
     try {
-      DocumentReference docRef = _firestore.collection('users').doc(user.uid).collection('followed_clubs').doc(clubId);
+      // Kulübün güncel durumunu alıyoruz
+      final clubSnapshot = await clubRef.get();
+      final int membersCount = (clubSnapshot.data()?['members'] ?? 0) as int;
+
       if (isFollowing) {
-        await docRef.delete();
+        // Takipten çıkma işlemi
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          // Kulübün güncel verisini alma
+          final clubSnapshot = await transaction.get(clubRef);
+          if (!clubSnapshot.exists) {
+            throw Exception("Kulüp bulunamadı");
+          }
+
+          // Mevcut üyeleri güncelleme
+          final updatedMembersCount = (clubSnapshot.data()?['members'] ?? 0) - 1;
+          transaction.update(clubRef, {'members': updatedMembersCount});
+        });
+
+        // Kullanıcıdan kulübü kaldırma
+        await followedClubRef.delete();
       } else {
-        await docRef.set({
+        // Takip etmeye başlama işlemi
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          // Kulübün güncel verisini alma
+          final clubSnapshot = await transaction.get(clubRef);
+          if (!clubSnapshot.exists) {
+            throw Exception("Kulüp bulunamadı");
+          }
+
+          // Mevcut üyeleri güncelleme
+          final updatedMembersCount = (clubSnapshot.data()?['members'] ?? 0) + 1;
+          transaction.update(clubRef, {'members': updatedMembersCount});
+        });
+
+        // Kullanıcının takip ettiği kulübü ekleme
+        await followedClubRef.set({
           'id': clubId,
           'title': club['title'],
-          'img': club['img'],
           'description': club['description'],
-          'events': club['events'],
-          'members': club['members'],
+          'img': club['img'],
+          'contactInfo': club['contactInfo'],
           'type': club['type'],
-          // Başka kulüp bilgileri olacaksa onları da buraya eklicez
+          'management': club['management'],
+          'events': club['events'],
+          'members': (club['members'] ?? 0) + 1,
         });
       }
     } catch (e) {
-      throw Exception('Failed to update follow status: $e');
+      print('Hata: $e');
+      throw Exception('Takip durumu güncellenirken bir hata oluştu: $e');
     }
   }
+
+
+
 
   Future<bool> isFollowingClub(User user, String clubId) async {
     try {

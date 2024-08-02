@@ -1,4 +1,9 @@
+import 'package:campus_guide/bloc/admin_bloc.dart';
 import 'package:campus_guide/bloc/user_bloc.dart';
+import 'package:campus_guide/screens/digital_library.dart';
+import 'package:campus_guide/screens/notification_screen.dart';
+import 'package:campus_guide/screens/schedule_screen.dart';
+import 'package:campus_guide/screens/student_clubs.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +17,14 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
+  bool isLoggedIn = false; // Kullanıcının giriş durumunu belirten değişken
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<AdminCubit>().getNotifications();
+  }
+
   int _currentIndex = 0;
   final List<String> imgList = [
     'img/homepage_slider/ornek_slider.png',
@@ -33,10 +46,52 @@ class _HomePageScreenState extends State<HomePageScreen> {
         title: const Text('Kampüs Rehberi', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF007BFF),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(FontAwesomeIcons.bell, color: Colors.white),
+            padding: const EdgeInsets.only(right: 16.0),
+            child: BlocBuilder<AdminCubit, AdminState>(
+              builder: (context, state) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(FontAwesomeIcons.bell, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                        );
+                        context.read<AdminCubit>().getNotifications();
+                      },
+                    ),
+                    if (state.unreadNotificationCount > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            state.unreadNotificationCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -64,7 +119,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 padding: EdgeInsets.all(8.0),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                    child: Text('Öne Çıkan Etkinlikler',style: TextStyle(fontWeight: FontWeight.bold),)),
+                  child: Text('Öne Çıkan Etkinlikler', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
               ),
               CarouselSlider(
                 options: CarouselOptions(
@@ -125,12 +181,46 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _buildGridItem('Öğrenci\nKulüpleri', FontAwesomeIcons.users),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const StudentClubs()),
+                      );
+                    },
+                    child: _buildGridItem('Öğrenci\nKulüpleri', FontAwesomeIcons.users),
+                  ),
                   _buildGridItem('Kampüs\nHaritaları', FontAwesomeIcons.map),
-                  _buildGridItem('Ders\nProgramı', FontAwesomeIcons.book),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SchedulePage()),
+                      );
+                    },
+                    child: _buildGridItem('Ders\nProgramı', FontAwesomeIcons.book),
+                  ),
                   _buildGridItem('Ulaşım\nİmkanları', FontAwesomeIcons.busSimple),
                   _buildGridItem('Mekan\nKeşfi', FontAwesomeIcons.utensils),
-                  _buildGridItem('Dijital\nKütüphane', FontAwesomeIcons.landmark),
+                  GestureDetector(
+                    onTap: () {
+                      if (isLoggedIn) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DigitalLibraryScreen()),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Dijital Kütüphane erişimi için öncelikle giriş yapmanız ya da kayıt olmanız gerekmektedir.',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: _buildGridItem('Dijital\nKütüphane', FontAwesomeIcons.landmark),
+                  ),
                 ],
               ),
             ],
